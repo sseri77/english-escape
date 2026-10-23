@@ -24,29 +24,6 @@ window.READING_LESSONS={
         "지도"
       ]
     ],
-    "challenges": [
-      {
-        "text": "mat",
-        "reading": "맷",
-        "meaning": "매트",
-        "level": 1,
-        "kind": "word"
-      },
-      {
-        "text": "rat",
-        "reading": "랫",
-        "meaning": "쥐",
-        "level": 1,
-        "kind": "word"
-      },
-      {
-        "text": "sat",
-        "reading": "샛",
-        "meaning": "앉았다",
-        "level": 1,
-        "kind": "word"
-      }
-    ],
     "letter": "A a",
     "name": "에이",
     "sound": "짧은 애에 가까운 소리",
@@ -75,29 +52,6 @@ window.READING_LESSONS={
         "펫",
         "반려동물"
       ]
-    ],
-    "challenges": [
-      {
-        "text": "ten",
-        "reading": "텐",
-        "meaning": "열",
-        "level": 2,
-        "kind": "word"
-      },
-      {
-        "text": "bed",
-        "reading": "베드",
-        "meaning": "침대",
-        "level": 2,
-        "kind": "word"
-      },
-      {
-        "text": "red",
-        "reading": "레드",
-        "meaning": "빨간색",
-        "level": 2,
-        "kind": "word"
-      }
     ],
     "letter": "E e",
     "name": "이",
@@ -128,7 +82,6 @@ window.READING_LESSONS={
         "펜"
       ]
     ],
-    "challenges": [],
     "letter": "I i",
     "name": "아이",
     "sound": "짧은 이에 가까운 소리",
@@ -158,7 +111,6 @@ window.READING_LESSONS={
         "수도꼭지"
       ]
     ],
-    "challenges": [],
     "letter": "O o",
     "name": "오우",
     "sound": "미국식 짧은 아에 가까운 소리",
@@ -188,7 +140,6 @@ window.READING_LESSONS={
         "가방"
       ]
     ],
-    "challenges": [],
     "letter": "U u",
     "name": "유",
     "sound": "짧은 어에 가까운 소리",
@@ -200,8 +151,7 @@ window.READING_LESSONS={
       "햇",
       "랫"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "7": {
     "readings": [
@@ -209,8 +159,7 @@ window.READING_LESSONS={
       "팬",
       "탭"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "8": {
     "readings": [
@@ -218,8 +167,7 @@ window.READING_LESSONS={
       "레드",
       "키드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "9": {
     "readings": [
@@ -227,8 +175,7 @@ window.READING_LESSONS={
       "로그",
       "버그"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "10": {
     "readings": [
@@ -236,8 +183,7 @@ window.READING_LESSONS={
       "레그",
       "머드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "11": {
     "readings": [
@@ -245,8 +191,7 @@ window.READING_LESSONS={
       "클랩",
       "클락"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "12": {
     "readings": [
@@ -254,8 +199,7 @@ window.READING_LESSONS={
       "플랫",
       "플랜"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "13": {
     "readings": [
@@ -263,8 +207,7 @@ window.READING_LESSONS={
       "크랩",
       "크립"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "14": {
     "readings": [
@@ -272,8 +215,7 @@ window.READING_LESSONS={
       "드랍",
       "트립"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "15": {
     "readings": [
@@ -281,8 +223,7 @@ window.READING_LESSONS={
       "스팟",
       "스윔"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "16": {
     "readings": [
@@ -290,8 +231,7 @@ window.READING_LESSONS={
       "샌드",
       "텐트"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "17": {
     "readings": [
@@ -299,8 +239,7 @@ window.READING_LESSONS={
       "점프",
       "네스트"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "18": {
     "readings": [
@@ -317,8 +256,7 @@ window.READING_LESSONS={
         "칩",
         "감자칩"
       ]
-    ],
-    "challenges": []
+    ]
   },
   "19": {
     "readings": [
@@ -335,8 +273,7 @@ window.READING_LESSONS={
         "칩",
         "감자칩"
       ]
-    ],
-    "challenges": []
+    ]
   },
   "20": {
     "readings": [
@@ -353,8 +290,7 @@ window.READING_LESSONS={
         "디스",
         "이것"
       ]
-    ],
-    "challenges": []
+    ]
   },
   "21": {
     "readings": [
@@ -387,29 +323,6 @@ window.READING_LESSONS={
         "테이프",
         "테이프"
       ]
-    ],
-    "challenges": [
-      {
-        "text": "name",
-        "reading": "네임",
-        "meaning": "이름",
-        "level": 21,
-        "kind": "word"
-      },
-      {
-        "text": "tape",
-        "reading": "테이프",
-        "meaning": "테이프",
-        "level": 21,
-        "kind": "word"
-      },
-      {
-        "text": "game",
-        "reading": "게임",
-        "meaning": "게임",
-        "level": 21,
-        "kind": "word"
-      }
     ],
     "letter": "A … E",
     "name": "에이",
@@ -448,29 +361,6 @@ window.READING_LESSONS={
         "소나무"
       ]
     ],
-    "challenges": [
-      {
-        "text": "time",
-        "reading": "타임",
-        "meaning": "시간",
-        "level": 22,
-        "kind": "word"
-      },
-      {
-        "text": "line",
-        "reading": "라인",
-        "meaning": "선",
-        "level": 22,
-        "kind": "word"
-      },
-      {
-        "text": "ride",
-        "reading": "라이드",
-        "meaning": "타다",
-        "level": 22,
-        "kind": "word"
-      }
-    ],
     "letter": "I … E",
     "name": "아이",
     "sound": "짧은 이 → 아이",
@@ -500,29 +390,6 @@ window.READING_LESSONS={
         "바라다"
       ]
     ],
-    "challenges": [
-      {
-        "text": "note",
-        "reading": "노우트",
-        "meaning": "메모",
-        "level": 23,
-        "kind": "word"
-      },
-      {
-        "text": "bone",
-        "reading": "보운",
-        "meaning": "뼈",
-        "level": 23,
-        "kind": "word"
-      },
-      {
-        "text": "rose",
-        "reading": "로우즈",
-        "meaning": "장미",
-        "level": 23,
-        "kind": "word"
-      }
-    ],
     "letter": "O … E",
     "name": "오우",
     "sound": "짧은 모음 → 오우",
@@ -535,7 +402,6 @@ window.READING_LESSONS={
       "플루트"
     ],
     "pairs": [],
-    "challenges": [],
     "letter": "U … E",
     "name": "유",
     "sound": "유 또는 우",
@@ -547,8 +413,7 @@ window.READING_LESSONS={
       "트레인",
       "데이"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "26": {
     "readings": [
@@ -556,8 +421,7 @@ window.READING_LESSONS={
       "비",
       "피트"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "27": {
     "readings": [
@@ -565,8 +429,7 @@ window.READING_LESSONS={
       "시",
       "리프"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "28": {
     "readings": [
@@ -574,8 +437,7 @@ window.READING_LESSONS={
       "코우트",
       "스노우"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "29": {
     "readings": [
@@ -583,8 +445,7 @@ window.READING_LESSONS={
       "플라이",
       "크라이"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "30": {
     "readings": [
@@ -592,8 +453,7 @@ window.READING_LESSONS={
       "나인",
       "로우드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "31": {
     "readings": [
@@ -601,8 +461,7 @@ window.READING_LESSONS={
       "스타",
       "파크"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "32": {
     "readings": [
@@ -610,8 +469,7 @@ window.READING_LESSONS={
       "포크",
       "호스"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "33": {
     "readings": [
@@ -619,8 +477,7 @@ window.READING_LESSONS={
       "걸",
       "너스"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "34": {
     "readings": [
@@ -637,8 +494,7 @@ window.READING_LESSONS={
         "북",
         "책"
       ]
-    ],
-    "challenges": []
+    ]
   },
   "35": {
     "readings": [
@@ -655,8 +511,7 @@ window.READING_LESSONS={
         "북",
         "책"
       ]
-    ],
-    "challenges": []
+    ]
   },
   "36": {
     "readings": [
@@ -664,8 +519,7 @@ window.READING_LESSONS={
       "마우스",
       "카우"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "37": {
     "readings": [
@@ -673,8 +527,7 @@ window.READING_LESSONS={
       "오일",
       "토이"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "38": {
     "readings": [
@@ -682,8 +535,7 @@ window.READING_LESSONS={
       "소",
       "포"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "39": {
     "readings": [
@@ -691,8 +543,7 @@ window.READING_LESSONS={
       "라이트",
       "램"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "40": {
     "readings": [
@@ -700,8 +551,7 @@ window.READING_LESSONS={
       "아이스",
       "젬"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "41": {
     "readings": [
@@ -709,8 +559,7 @@ window.READING_LESSONS={
       "도그즈",
       "버시즈"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "42": {
     "readings": [
@@ -718,8 +567,7 @@ window.READING_LESSONS={
       "플레이드",
       "원티드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "43": {
     "readings": [
@@ -727,8 +575,7 @@ window.READING_LESSONS={
       "메이킹",
       "싱잉"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "44": {
     "readings": [
@@ -736,8 +583,7 @@ window.READING_LESSONS={
       "선셋",
       "피크닉"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "45": {
     "readings": [
@@ -745,8 +591,7 @@ window.READING_LESSONS={
       "베드룸",
       "투스브러시"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "46": {
     "readings": [
@@ -754,8 +599,7 @@ window.READING_LESSONS={
       "투",
       "세드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "47": {
     "readings": [
@@ -763,8 +607,7 @@ window.READING_LESSONS={
       "밀크",
       "브레드"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "48": {
     "readings": [
@@ -772,8 +615,7 @@ window.READING_LESSONS={
       "뱅크",
       "마켓"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "49": {
     "readings": [
@@ -781,8 +623,7 @@ window.READING_LESSONS={
       "리드",
       "슬립"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "50": {
     "readings": [
@@ -790,8 +631,7 @@ window.READING_LESSONS={
       "윈도우",
       "배스킷"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "51": {
     "readings": [
@@ -799,8 +639,7 @@ window.READING_LESSONS={
       "잇 이즈 어 캣",
       "디스 이즈 어 펜"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "52": {
     "readings": [
@@ -808,8 +647,7 @@ window.READING_LESSONS={
       "아이 해브 어 배그",
       "아이 해브 어 바이크"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "53": {
     "readings": [
@@ -817,8 +655,7 @@ window.READING_LESSONS={
       "아이 라이크 캣츠",
       "아이 라이크 티"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "54": {
     "readings": [
@@ -826,8 +663,7 @@ window.READING_LESSONS={
       "더 배그 이즈 레드",
       "더 도그 이즈 빅"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "55": {
     "readings": [
@@ -835,8 +671,7 @@ window.READING_LESSONS={
       "아이 캔 리드",
       "아이 캔 점프"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "56": {
     "readings": [
@@ -844,8 +679,7 @@ window.READING_LESSONS={
       "더 펜 이즈 인 더 배그",
       "더 토이 이즈 온 더 맵"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "57": {
     "readings": [
@@ -853,8 +687,7 @@ window.READING_LESSONS={
       "캔 유 스윔",
       "두 유 라이크 밀크"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "58": {
     "readings": [
@@ -862,8 +695,7 @@ window.READING_LESSONS={
       "아이 두 낫 라이크 레인",
       "아이 캐낫 플라이"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "59": {
     "readings": [
@@ -871,8 +703,7 @@ window.READING_LESSONS={
       "아이 리드 어 북",
       "아이 워크 인 더 파크"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   },
   "60": {
     "readings": [
@@ -880,8 +711,7 @@ window.READING_LESSONS={
       "디스 이즈 마이 홈",
       "아이 라이크 디스 북"
     ],
-    "pairs": [],
-    "challenges": []
+    "pairs": []
   }
 };
 window.READING_CHOICES={"cake": ["케이크", "캑", "키크"], "lake": ["레이크", "랙", "리크"], "gate": ["게이트", "갯", "깃"], "bike": ["바이크", "빅", "벡"], "kite": ["카이트", "킷", "켓"], "five": ["파이브", "피브", "페브"], "home": ["홈", "함", "힘"], "nose": ["노우즈", "나즈", "니즈"], "rope": ["로우프", "랍", "립"], "cat": ["캣", "컷", "킷"], "cap": ["캡", "컵", "킵"], "map": ["맵", "멥", "밉"], "pen": ["펜", "핀", "팬"], "net": ["넷", "닛", "낫"], "hen": ["헨", "힌", "한"], "time": ["타임", "팀", "템"], "name": ["네임", "냄", "님"], "game": ["게임", "갬", "김"], "line": ["라인", "린", "렌"], "ride": ["라이드", "리드", "레드"], "tape": ["테이프", "탭", "팁"], "note": ["노우트", "낫", "닛"], "bone": ["보운", "반", "빈"], "rose": ["로우즈", "라즈", "리즈"], "mat": ["맷", "멧", "밋"], "rat": ["랫", "렛", "릿"], "sat": ["샛", "셋", "싯"], "ten": ["텐", "틴", "탠"]};

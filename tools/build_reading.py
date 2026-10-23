@@ -56,7 +56,7 @@ DIFFICULT.update({'time':['타임','팀','템'],'name':['네임','냄','님'],'g
 PAYLOAD={}
 for n,row in enumerate(READINGS,1):
  hints=row.split('|');assert len(hints)==3
- data={'readings':hints,'pairs':PAIRS.get(n,[]),'challenges':[{'text':text,'reading':reading,'meaning':meaning,'level':n,'kind':'word'} for text,reading,meaning in CHALLENGES.get(n,[])]}
+ data={'readings':hints,'pairs':PAIRS.get(n,[])}
  if n in INTRO:
   letter,name,sound,explain=INTRO[n];data.update(letter=letter,name=name,sound=sound,explain=explain)
  PAYLOAD[str(n)]=data
