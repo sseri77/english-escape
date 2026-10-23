@@ -47,3 +47,24 @@ class API(unittest.TestCase):
  def test_invalid_audio(self,mock):self.assertEqual(self.post().status_code,422);mock.assert_not_called()
  def test_upload_limit(self):self.assertEqual(self.post(audio=b'x'*(4*1024*1024)).status_code,413)
 if __name__=='__main__':unittest.main()
+
+
+class Deployment(unittest.TestCase):
+ def test_health(self):
+  c=create_app({'TESTING':True}).test_client()
+  self.assertEqual(c.get('/healthz').json,{'status':'ok'})
+ @patch.dict(os.environ,{'AZURE_SPEECH_KEY':'test','AZURE_SPEECH_REGION':'eastus'})
+ def test_public_preview_never_uses_paid_service(self):
+  c=create_app({'TESTING':True,'ENABLE_PRONUNCIATION':False}).test_client()
+  c.get('/')
+  with c.session_transaction() as session:token=session['csrf']
+  self.assertFalse(c.get('/api/lesson').json['assessment_ready'])
+  with patch('app.assess') as provider:
+   r=c.post('/api/pronunciation',headers={'X-CSRF-Token':token},data={'word_id':'cat'})
+  self.assertEqual(r.status_code,503)
+  provider.assert_not_called()
+ @patch.dict(os.environ,{'SECRET_KEY':'local-test-only-key-not-for-production-123456'})
+ def test_secure_production_session(self):
+  import wsgi
+  c=wsgi.app.test_client()
+  self.assertIn('Secure',c.get('/').headers['Set-Cookie'])

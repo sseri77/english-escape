@@ -18,7 +18,8 @@ def create_app(test_config=None):
     app = Flask(__name__)
     app.config.update(SECRET_KEY=os.getenv('SECRET_KEY') or secrets.token_hex(32),
                       MAX_CONTENT_LENGTH=3 * 1024 * 1024,
-                      SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Strict')
+                      SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Strict',
+                      ENABLE_PRONUNCIATION=True)
     if test_config:
         app.config.update(test_config)
 
@@ -27,10 +28,14 @@ def create_app(test_config=None):
         session.setdefault('csrf', secrets.token_urlsafe(32))
         return render_template('index.html', csrf=session['csrf'])
 
+    @app.get('/healthz')
+    def health():
+        return jsonify(status='ok')
+
     @app.get('/api/lesson')
     def lesson():
         return jsonify(words=[dict(id=k, **v) for k, v in WORDS.items()],
-                       assessment_ready=bool(os.getenv('AZURE_SPEECH_KEY') and os.getenv('AZURE_SPEECH_REGION') and shutil.which('ffmpeg')))
+                       assessment_ready=bool(app.config['ENABLE_PRONUNCIATION'] and os.getenv('AZURE_SPEECH_KEY') and os.getenv('AZURE_SPEECH_REGION') and shutil.which('ffmpeg')))
 
     @app.post('/api/pronunciation')
     def pronunciation():
@@ -39,7 +44,7 @@ def create_app(test_config=None):
         word_id = request.form.get('word_id')
         if word_id not in WORDS:
             return jsonify(message='학습 단어를 다시 선택해주세요.'), 400
-        if not os.getenv('AZURE_SPEECH_KEY') or not os.getenv('AZURE_SPEECH_REGION'):
+        if not app.config['ENABLE_PRONUNCIATION'] or not os.getenv('AZURE_SPEECH_KEY') or not os.getenv('AZURE_SPEECH_REGION'):
             return jsonify(status='unavailable', message='발음 평가 서비스 연결 준비 중입니다. 모범 발음과 내 녹음을 비교하며 연습할 수 있어요.'), 503
         recording = request.files.get('audio')
         if not recording or not recording.mimetype.startswith('audio/'):
