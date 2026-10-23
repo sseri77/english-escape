@@ -2,6 +2,7 @@
 (function(root){
 'use strict';
 const KEY='english-escape-v2';
+const MASTERY=5;
 const defaults=()=>({version:2,revision:0,settings:{level:1,font:18,theme:'light',speed:.85,reminder:false,time:'19:00',lastReminder:''},items:{},lessons:{}});
 const empty=()=>({streak:0,total:0,wrong:0,last:0,due:0,interval:0});
 const integer=(n,max)=>Number.isSafeInteger(n)&&n>=0&&n<=max;
@@ -18,7 +19,8 @@ function validate(input,ids){
  for(const [id,p] of Object.entries(input.items)){
   if(!ids.has(id))continue;
   if(!p||!integer(p.streak,10)||!integer(p.total,10000000)||!integer(p.wrong,p.total)||!integer(p.last,8640000000000000)||!integer(p.due,8640000000000000)||!integer(p.interval,5)||p.streak>p.total-p.wrong)throw Error('학습 기록 값이 올바르지 않습니다.');
-  out.items[id]={streak:p.streak,total:p.total,wrong:p.wrong,last:p.last,due:p.due,interval:p.interval};
+  // Saved progress from the original ten-answer course counts toward the new goal.
+  out.items[id]={streak:Math.min(MASTERY,p.streak),total:p.total,wrong:p.wrong,last:p.last,due:p.streak>=MASTERY&&p.due===0?p.last+86400000:p.due,interval:p.streak>=MASTERY&&p.interval===0?1:p.interval};
  }
  if(input.lessons!==undefined){
   if(!input.lessons||typeof input.lessons!=='object'||Array.isArray(input.lessons))throw Error('수업 기록이 올바르지 않습니다.');
@@ -38,7 +40,7 @@ function validate(input,ids){
 }
 function answer(progress,correct,now=Date.now()){
  const p={...empty(),...progress};p.total++;p.last=now;
- if(correct){p.streak=Math.min(10,p.streak+1);if(p.streak===10&&(!progress||progress.streak<10||now>=p.due)){const days=[1,3,7,14,30];p.due=now+days[Math.min(p.interval,4)]*86400000;p.interval=Math.min(5,p.interval+1);}}
+ if(correct){p.streak=Math.min(MASTERY,p.streak+1);if(p.streak===MASTERY&&(!progress||progress.streak<MASTERY||now>=p.due)){const days=[1,3,7,14,30];p.due=now+days[Math.min(p.interval,4)]*86400000;p.interval=Math.min(5,p.interval+1);}}
  else{p.streak=0;p.wrong++;p.due=0;p.interval=0;}
  return p;
 }
@@ -48,12 +50,12 @@ function blankLesson(){return {phase:0,seen:[],basic:[],application:[],complete:
 function shuffle(list,rng=Math.random){const out=[...list];for(let i=out.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
 function mixedRound(targetIds,reviewIds,rng=Math.random){const reviews=shuffle([...new Set(reviewIds)],rng).slice(0,1+Math.floor(rng()*2));return shuffle([...targetIds,...reviews],rng);}
 function advanceIfMastered(state,level,targetIds,lastLevel=60){
- if(targetIds.length!==5||targetIds.some(id=>!state.items[id]||state.items[id].streak!==10))return false;
+ if(targetIds.length!==5||targetIds.some(id=>!state.items[id]||state.items[id].streak<MASTERY))return false;
  const lesson=state.lessons[level]||blankLesson();if(lesson.phase!==4)return false;
  lesson.complete=true;state.lessons[level]=lesson;
  if(level<lastLevel){state.settings.level=level+1;state.lessons[level+1]||=blankLesson();}
  return true;
 }
-const api={KEY,defaults,empty,validate,answer,reset,normalize,blankLesson,shuffle,mixedRound,advanceIfMastered};
+const api={KEY,MASTERY,defaults,empty,validate,answer,reset,normalize,blankLesson,shuffle,mixedRound,advanceIfMastered};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.Learning=api;
 })(typeof window!=='undefined'?window:globalThis);
