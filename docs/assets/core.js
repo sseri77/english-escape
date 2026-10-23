@@ -38,7 +38,7 @@ function validate(input,ids){
 }
 function answer(progress,correct,now=Date.now()){
  const p={...empty(),...progress};p.total++;p.last=now;
- if(correct){p.streak=Math.min(10,p.streak+1);if(p.streak===10){const days=[1,3,7,14,30];p.due=now+days[Math.min(p.interval,4)]*86400000;p.interval=Math.min(5,p.interval+1);}}
+ if(correct){p.streak=Math.min(10,p.streak+1);if(p.streak===10&&(!progress||progress.streak<10||now>=p.due)){const days=[1,3,7,14,30];p.due=now+days[Math.min(p.interval,4)]*86400000;p.interval=Math.min(5,p.interval+1);}}
  else{p.streak=0;p.wrong++;p.due=0;p.interval=0;}
  return p;
 }
