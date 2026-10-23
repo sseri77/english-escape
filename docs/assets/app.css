@@ -9,8 +9,4 @@
 aside .lesson-controls{flex-direction:column;margin-top:20px;padding-top:18px}
 aside .lesson-controls button{width:100%;flex:none}
 .lesson-tools{border-top:1px solid var(--line);margin-top:28px;padding-top:24px;text-align:left}
-.lesson-tools h3{font-size:1.1rem;margin:0 0 12px}
-.lesson-tools .unit-list{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
-.lesson-tools .unit-list button{display:block;text-align:center;padding:12px 8px}
-.lesson-tools .unit-list small{display:block}
 @media(max-width:740px){aside .lesson-controls{flex-direction:row;margin-top:14px;padding-top:14px}aside .lesson-controls button{flex:1;width:auto}.lesson-tools .unit-list{grid-template-columns:repeat(auto-fit,minmax(95px,1fr))}}
