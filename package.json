@@ -1,0 +1,1 @@
+{"name":"english-escape","private":true,"scripts":{"test":"node --test tests/static.test.cjs tests/browser-dom.test.cjs"},"devDependencies":{"jsdom":"^30.1.3"}}
