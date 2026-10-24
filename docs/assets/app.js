@@ -165,11 +165,11 @@ function setLessonPhase(phase){
 }
 function renderGuide(){
  const level=currentLevel(),info=window.READING_LESSONS[level.id],saved=lessonState();
- lessonStep=Math.min(lessonStep,saved.phase);
- const titles=['기본 3개 학습','읽기·암기','기본 문제','응용 2개','5개 숙달'];
- $('lesson-steps').replaceChildren();titles.forEach((title,i)=>{const b=btn((i+1)+'. '+title,()=>{cancelRecording();lessonStep=i;renderGuide();});b.disabled=i>saved.phase;if(i===lessonStep)b.setAttribute('aria-current','step');$('lesson-steps').append(b);});
- document.querySelectorAll('[data-lesson-step]').forEach(p=>p.hidden=Number(p.dataset.lessonStep)!==lessonStep);
- $('lesson-location').textContent=`수업 ${lessonStep+1} / 5 · ${titles[lessonStep]}`;
+ lessonStep=lessonStep===1?0:Math.min(lessonStep,saved.phase);
+ const steps=[0,2,3,4],titles=['기본 3개 학습·읽기','기본 문제','응용 2개','5개 숙달'];
+ $('lesson-steps').replaceChildren();steps.forEach((phase,i)=>{const b=btn((i+1)+'. '+titles[i],()=>{cancelRecording();lessonStep=phase;renderGuide();});b.disabled=phase>saved.phase;if(phase===lessonStep)b.setAttribute('aria-current','step');$('lesson-steps').append(b);});
+ document.querySelectorAll('[data-lesson-step]').forEach(p=>p.hidden=Number(p.dataset.lessonStep)!==lessonStep&&!(lessonStep===0&&p.dataset.lessonStep==='1'));
+ $('lesson-location').textContent=`수업 ${steps.indexOf(lessonStep)+1} / 4 · ${titles[steps.indexOf(lessonStep)]}`;
  $('base-word-overview').replaceChildren();
  for(const u of stageUnits().filter(u=>u.role==='base')){
   const row=el('article',undefined,'teaching-word');const picture=el('div',u.picture,'teaching-picture');picture.setAttribute('role','img');picture.setAttribute('aria-label',u.meaning);const body=el('div');body.append(el('h3',u.text),el('p',u.reading,'reading-hint'),el('p','뜻: '+u.meaning),btn('🔊 듣기',()=>speak(u.text)),btn('천천히',()=>speak(u.text,.65)));row.append(picture,body);$('base-word-overview').append(row);
@@ -177,7 +177,7 @@ function renderGuide(){
  $('sound-card').replaceChildren();if(info.letter){const card=el('div',undefined,'sound-card');card.append(el('div',info.letter,'sound-title'));const columns=el('div',undefined,'sound-columns');for(const [label,value]of[['알파벳 이름',info.name],['단어 속 소리',info.sound]]){const cell=el('div');cell.append(el('p',label),el('strong',value));columns.append(cell);}card.append(columns);$('sound-card').append(card);}
  $('teacher-explain').textContent=info.explain||level.rule;
  $('reading-comparisons').replaceChildren();for(const pair of info.pairs){const row=el('div',undefined,'comparison'),grid=el('div',undefined,'comparison-grid');for(let j=0;j<2;j++){if(j)grid.append(el('span','→'));const k=j*3,cell=el('div');cell.append(el('strong',pair[k]),el('p',pair[k+1],'reading-hint'),el('p',pair[k+2]),btn('🔊 듣기',()=>speak(pair[k])));grid.append(cell);}row.append(grid);$('reading-comparisons').append(row);}
- $('lesson-back').disabled=lessonStep===0;$('lesson-next').hidden=lessonStep!==0;$('lesson-next').textContent='세 단어 읽기·암기 연습으로 →';
+ $('lesson-back').parentElement.hidden=lessonStep===0;
  renderSelfReading();renderGateCheck('base');renderGateCheck('application');
  $('mastery-list').replaceChildren();for(const u of stageUnits()){const p=progress(u.id),row=el('div',undefined,'mastery-row');row.append(el('span',`${u.text} · ${u.reading} (${u.role==='base'?'기본':'응용'})`),el('strong',p.streak===L.MASTERY?'통과 ✓':'연습 중'));$('mastery-list').append(row);}
 }
@@ -208,6 +208,5 @@ function renderGateCheck(role){
  }
  card.append(choices,feedback);host.append(card);
 }
-$('lesson-back').onclick=()=>{cancelRecording();lessonStep=Math.max(0,lessonStep-1);renderGuide();};
-$('lesson-next').onclick=()=>{selfIndex=0;setLessonPhase(1);};
+$('lesson-back').onclick=()=>{cancelRecording();lessonStep=lessonStep===2?0:Math.max(0,lessonStep-1);renderGuide();};
 
