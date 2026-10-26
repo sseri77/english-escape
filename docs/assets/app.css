@@ -76,3 +76,5 @@ aside .lesson-controls button{width:100%;flex:none}
  #page-quiz .explanation-picture{font-size:2.4rem}
  #page-quiz .explanation-word h3{font-size:1.35rem}
 }
+
+.teaching-practice{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.teaching-practice button{margin:0}.teaching-audio{display:flex;gap:8px;flex-wrap:wrap}.teaching-word .teaching-practice~p:empty{display:none}
