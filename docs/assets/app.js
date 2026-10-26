@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id), L=window.Learning, levels=window.CURRIC
 const units=levels.flatMap(level=>[...level.units.map((unit,index)=>({...unit,level:level.id,kind:level.kind,role:'base',reading:window.READING_LESSONS[level.id].readings[index]})),...window.APPLICATIONS[level.id]]), ids=new Set(units.map(u=>u.id));
 let lessonStep=0,selfIndex=0,checkIndex=0;
 let state=L.defaults(), page='learn', current=levels[0].units[0].id, question=null, quizPool=[], previous=null, selectedImport=null;
-let recorder=null, stream=null, audioUrl=null, recordTimer=null, recordGeneration=0, recordingCancelled=false, recordBusy=false, toastTimer;
+let toastTimer;
 function toast(text){$('toast').textContent=text;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').textContent='',4500);}
 function warn(text){$('storage-warning').hidden=false;$('storage-warning').textContent=text;}
 function readState(){const raw=localStorage.getItem(L.KEY);return raw?L.validate(JSON.parse(raw),ids):L.defaults();}
@@ -26,28 +26,15 @@ function confirmAction(title,description,callback){$('confirm-title').textConten
 $('confirm-no').onclick=()=>$('confirm').close();
 function applySettings(){const s=state.settings;document.documentElement.style.fontSize=s.font+'px';document.body.dataset.theme=s.theme==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):s.theme;for(const [id,value] of [['font-size',s.font],['theme',s.theme],['speed',s.speed],['reminder-time',s.time]])$(id).value=String(value);$('reminder').checked=s.reminder;}
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applySettings);
-function showPage(name,autoQuiz=true){if(!['learn','quiz','words','stats','settings'].includes(name))return;if(page!==name)cancelRecording();if('speechSynthesis'in window)speechSynthesis.cancel();page=name;if(name!=='quiz')closeQuizExplanation();document.body.dataset.page=name;document.querySelectorAll('.page').forEach(p=>p.hidden=p.id!=='page-'+name);document.querySelectorAll('[data-page]').forEach(b=>{if(b.dataset.page===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(name==='words')renderWords();if(name==='stats')renderStats();if(name==='settings')applySettings();if(name==='quiz'&&!question&&autoQuiz)startCurrentPractice();window.scrollTo({top:0});}
+function showPage(name,autoQuiz=true){if(!['learn','quiz','words','stats','settings'].includes(name))return;if(page!==name)stopAudio();if('speechSynthesis'in window)speechSynthesis.cancel();page=name;if(name!=='quiz')closeQuizExplanation();document.body.dataset.page=name;document.querySelectorAll('.page').forEach(p=>p.hidden=p.id!=='page-'+name);document.querySelectorAll('[data-page]').forEach(b=>{if(b.dataset.page===name)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(name==='words')renderWords();if(name==='stats')renderStats();if(name==='settings')applySettings();if(name==='quiz'&&!question&&autoQuiz)startCurrentPractice();window.scrollTo({top:0});}
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{if(b.dataset.page==='quiz')startCurrentPractice();else showPage(b.dataset.page);});
 $('refresh-page').onclick=()=>window.location.reload();
 for(const level of levels){const option=el('option',`${level.id}단계 · ${level.title}`);option.value=level.id;$('level-select').append(option);}
 $('level-select').onchange=()=>{if(change(s=>s.settings.level=Number($('level-select').value))){current=currentLevel().units[0].id;question=null;lessonStep=0;selfIndex=0;checkIndex=0;renderLesson();}else $('level-select').value=state.settings.level;};
-function renderLesson(){const level=currentLevel();if(!stageUnits(level).some(u=>u.id===current))current=level.units[0].id;const u=unit(current),p=progress(current);$('level-select').value=level.id;$('level-kind').textContent=level.kind==='word'?'단어 과정 · '+level.id+' / 50':'문장 과정 · '+level.id+'단계';$('level-title').textContent=level.title;$('level-rule').textContent=level.rule;$('study-text').textContent=u.text;$('study-meaning').textContent='뜻: '+u.meaning;$('study-reading').textContent='읽는 법: '+u.reading;$('study-parts').replaceChildren();if(level.id<=10){const soundHints={a:'애',e:'에',i:'짧은 이',o:'짧은 아',u:'어',c:'ㅋ',b:'ㅂ',d:'ㄷ',f:'윗니·아랫입술',g:'ㄱ',h:'ㅎ',k:'ㅋ',l:'혀끝을 위에',m:'ㅁ',n:'ㄴ',p:'ㅍ',r:'혀를 뒤로',s:'ㅅ',t:'ㅌ'};for(const letter of u.text){const box=el('span');box.append(el('strong',letter),el('small',soundHints[letter]||''));$('study-parts').append(box);}}$('picture').textContent=u.picture;$('picture').setAttribute('aria-label',u.meaning+' 그림');$('study-progress').textContent=p.streak===L.MASTERY?'통과 ✓':'연습 중';$('level-progress').textContent='다섯 단어를 모두 익히면 다음 단계로 자동 이동해요.';renderGuide();$('review-detail').textContent=lessonState().phase===4&&!lessonState().complete?'다섯 단어를 계속 섞어 연습해요. 모두 익히면 다음 단계로 자동 이동합니다.':'현재 단어와 복습이 필요한 이전 단어를 함께 풀어요. 한 번에 최대 10개를 연습합니다.';$('start-review').classList.toggle('primary',lessonState().phase===4&&!lessonState().complete);}
-function speak(text,rate=state.settings.speed,status=$('speech-status')){if(recordBusy){toast('녹음을 마친 뒤 모범 발음을 들어주세요.');return false;}$('record-playback').pause();if(!('speechSynthesis'in window)){if(status)status.textContent='이 브라우저는 음성 듣기를 지원하지 않아요.';return false;}speechSynthesis.cancel();const voices=speechSynthesis.getVoices();const voice=voices.find(v=>v.lang==='en-US')||voices.find(v=>v.lang.startsWith('en'));const utterance=new SpeechSynthesisUtterance(text);utterance.lang='en-US';utterance.rate=rate;if(voice)utterance.voice=voice;utterance.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled'&&status)status.textContent='영어 음성을 재생하지 못했어요. 기기의 영어 음성과 소리 설정을 확인해주세요.';};if(status)status.textContent='기기의 영어 음성으로 재생합니다.';speechSynthesis.speak(utterance);return true;}
-$('listen').onclick=()=>speak(unit(current).text);$('listen-slow').onclick=()=>speak(unit(current).text,.65);
-// Short recordings stay in browser memory. No recognition or third-party upload.
-function discardAudio(){$('record-playback').pause();$('record-playback').removeAttribute('src');$('record-playback').hidden=true;$('record-delete').hidden=true;if(audioUrl)URL.revokeObjectURL(audioUrl);audioUrl=null;}
-function stopTracks(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;}
-function cancelRecording(){recordGeneration++;recordingCancelled=true;clearTimeout(recordTimer);if(recorder&&recorder.state!=='inactive')recorder.stop();recorder=null;stopTracks();discardAudio();$('record-status').textContent='';$('record').textContent='🎤 녹음 시작';$('record').disabled=false;$('record-cancel').hidden=true;recordBusy=false;}
-$('record').onclick=async()=>{
- if(recorder?.state==='recording'){clearTimeout(recordTimer);recorder.stop();stopTracks();return;}
- if(recordBusy)return;
- if(!window.isSecureContext||!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$('record-status').textContent='녹음은 HTTPS 연결의 지원되는 Safari에서 사용할 수 있어요.';return;}
- if('speechSynthesis'in window)speechSynthesis.cancel();discardAudio();recordBusy=true;$('record').disabled=true;const generation=++recordGeneration;recordingCancelled=false;
- try{const acquired=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});if(generation!==recordGeneration||document.hidden){acquired.getTracks().forEach(t=>t.stop());return;}stream=acquired;const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t));const localRecorder=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream);recorder=localRecorder;const chunks=[];localRecorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};localRecorder.onstop=()=>{acquired.getTracks().forEach(t=>t.stop());if(stream===acquired)stream=null;if(generation!==recordGeneration)return;recorder=null;clearTimeout(recordTimer);recordBusy=false;$('record').disabled=false;$('record').textContent='🎤 다시 녹음';$('record-cancel').hidden=true;if(recordingCancelled)return;const blob=new Blob(chunks,{type:localRecorder.mimeType});if(!blob.size){$('record-status').textContent='녹음이 비어 있어요. 다시 시도해주세요.';return;}audioUrl=URL.createObjectURL(blob);$('record-playback').src=audioUrl;$('record-playback').hidden=false;$('record-delete').hidden=false;$('record-status').textContent='내 발음을 듣고 모범 발음과 비교해보세요. 자동 점수는 제공하지 않습니다.';};localRecorder.onerror=()=>{if(generation!==recordGeneration)return;cancelRecording();$('record-status').textContent='녹음 중 문제가 생겼어요. 다시 시도해주세요.';};localRecorder.start();$('record').disabled=false;$('record').textContent='■ 녹음 완료';$('record-cancel').hidden=false;$('record-status').textContent='듣고 있어요. 최대 15초, 다 읽으면 녹음 완료를 눌러주세요.';recordTimer=setTimeout(()=>{if(localRecorder.state==='recording'){localRecorder.stop();stopTracks();}},15000);
- }catch(e){stopTracks();if(generation===recordGeneration){recordBusy=false;$('record').disabled=false;$('record-status').textContent=e.name==='NotAllowedError'?'마이크 사용을 허용해주세요. Safari의 사이트 설정을 확인하세요.':'마이크를 사용할 수 없어요. 기기 연결을 확인해주세요.';}}
-};
-$('record-cancel').onclick=()=>{cancelRecording();$('record-status').textContent='녹음을 취소했어요.';};$('record-delete').onclick=()=>{discardAudio();$('record-status').textContent='내 녹음을 삭제했어요.';};
-document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelRecording();});window.addEventListener('pagehide',cancelRecording);
+function renderLesson(){const level=currentLevel();if(!stageUnits(level).some(u=>u.id===current))current=level.units[0].id;$('level-select').value=level.id;$('level-kind').textContent=level.kind==='word'?'단어 과정 · '+level.id+' / 50':'문장 과정 · '+level.id+'단계';$('level-title').textContent=level.title;$('level-rule').textContent=level.rule;$('level-progress').textContent='다섯 단어를 모두 익히면 다음 단계로 자동 이동해요.';renderGuide();$('review-detail').textContent=lessonState().phase===4&&!lessonState().complete?'다섯 단어를 계속 섞어 연습해요. 모두 익히면 다음 단계로 자동 이동합니다.':'현재 단어와 복습이 필요한 이전 단어를 함께 풀어요. 한 번에 최대 10개를 연습합니다.';$('start-review').classList.toggle('primary',lessonState().phase===4&&!lessonState().complete);}
+function speak(text,rate=state.settings.speed,status=$('speech-status')){if(!('speechSynthesis'in window)){if(status)status.textContent='이 브라우저는 음성 듣기를 지원하지 않아요.';return false;}speechSynthesis.cancel();const voices=speechSynthesis.getVoices();const voice=voices.find(v=>v.lang==='en-US')||voices.find(v=>v.lang.startsWith('en'));const utterance=new SpeechSynthesisUtterance(text);utterance.lang='en-US';utterance.rate=rate;if(voice)utterance.voice=voice;utterance.onerror=e=>{if(e.error!=='interrupted'&&e.error!=='canceled'&&status)status.textContent='영어 음성을 재생하지 못했어요. 기기의 영어 음성과 소리 설정을 확인해주세요.';};if(status)status.textContent='기기의 영어 음성으로 재생합니다.';speechSynthesis.speak(utterance);return true;}
+function stopAudio(){if('speechSynthesis'in window)speechSynthesis.cancel();}
+window.addEventListener('pagehide',stopAudio);
 // Quiz: one answer submission per question. Revision prevents stale answers after another tab resets data.
 function shuffle(a){return L.shuffle(a);}
 // Manual review includes tutorial learning, even before mastery answers exist.
@@ -72,7 +59,7 @@ function startQuiz(review){
 function startCurrentPractice(){const lesson=lessonState();startQuiz(lesson.phase!==4||lesson.complete);}
 $('start-review').onclick=startCurrentPractice;
 function finishStage(level){
- question=null;roundQueue=[];cancelRecording();lessonStep=lessonState().phase;current=currentLevel().units[0].id;
+ question=null;roundQueue=[];stopAudio();lessonStep=lessonState().phase;current=currentLevel().units[0].id;
  showPage('learn',false);renderLesson();
  if(level<levels.length)toast(`${level}단계 5개 모두 통과! ${level+1}단계를 시작합니다.`);
  else{toast('60단계를 모두 마쳤어요. 단어장에서 복습할 수 있어요.');$('course-message').hidden=false;$('course-message').textContent='현재 마지막 단계까지 마쳤어요. 복습할 항목을 계속 연습할 수 있습니다.';}
@@ -146,7 +133,7 @@ function renderStats(){const all=Object.values(state.items),total=all.reduce((su
 for(const [id,key,convert] of [['font-size','font',Number],['theme','theme',String],['speed','speed',Number],['reminder-time','time',String]])$(id).onchange=()=>{change(s=>s.settings[key]=convert($(id).value));applySettings();};$('reminder').onchange=()=>{change(s=>s.settings.reminder=$('reminder').checked);applySettings();};
 function download(name,contents,type){const url=URL.createObjectURL(new Blob([contents],{type})),a=el('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
 $('export').onclick=()=>download('english-escape-backup-'+localDate()+'.json',JSON.stringify(state,null,2),'application/json');
-$('import').onchange=async()=>{const file=$('import').files[0];if(!file)return;try{if(file.size>2*1024*1024)throw Error('백업 파일이 너무 커요.');selectedImport=L.validate(JSON.parse(await file.text()),ids);confirmAction('백업으로 기록을 교체할까요?','현재 기기의 학습 기록과 설정을 선택한 백업으로 바꿉니다. 기존 기록을 먼저 내보내두세요.',()=>{try{selectedImport.revision=Date.now();localStorage.setItem(L.KEY,JSON.stringify(selectedImport));state=selectedImport;lessonStep=lessonState().phase;storageBlocked=false;$('storage-warning').hidden=true;cancelRecording();question=null;current=currentLevel().units[0].id;applySettings();renderLesson();toast('백업을 불러왔어요.');}catch{warn('백업을 저장하지 못했어요. 기존 기록은 변경하지 않았습니다.');}selectedImport=null;});}catch(e){toast(e.message||'백업을 읽지 못했어요.');}finally{$('import').value='';}};
+$('import').onchange=async()=>{const file=$('import').files[0];if(!file)return;try{if(file.size>2*1024*1024)throw Error('백업 파일이 너무 커요.');selectedImport=L.validate(JSON.parse(await file.text()),ids);confirmAction('백업으로 기록을 교체할까요?','현재 기기의 학습 기록과 설정을 선택한 백업으로 바꿉니다. 기존 기록을 먼저 내보내두세요.',()=>{try{selectedImport.revision=Date.now();localStorage.setItem(L.KEY,JSON.stringify(selectedImport));state=selectedImport;lessonStep=lessonState().phase;storageBlocked=false;$('storage-warning').hidden=true;stopAudio();question=null;current=currentLevel().units[0].id;applySettings();renderLesson();toast('백업을 불러왔어요.');}catch{warn('백업을 저장하지 못했어요. 기존 기록은 변경하지 않았습니다.');}selectedImport=null;});}catch(e){toast(e.message||'백업을 읽지 못했어요.');}finally{$('import').value='';}};
 $('reset-progress').onclick=()=>confirmAction('전체 진도를 초기화할까요?','모든 연속 정답·복습 상태를 0으로 바꿉니다. 출제·오답 통계와 설정은 유지합니다.',()=>{if(change(s=>{for(const id of Object.keys(s.items))s.items[id]=L.reset(s.items[id]);s.settings.level=1;s.lessons={};})){question=null;current=currentLevel().units[0].id;renderLesson();toast('전체 진도를 초기화했어요.');}});
 $('delete-all').onclick=()=>confirmAction('전체 학습 기록을 삭제할까요?','모든 진도와 풀이 통계를 삭제합니다. 먼저 백업을 권합니다. 화면·알림 설정은 유지됩니다.',()=>{if(change(s=>{s.items={};s.settings.level=1;s.lessons={};})){question=null;current=currentLevel().units[0].id;renderLesson();toast('학습 기록을 삭제했어요.');}});
 function localDate(date=new Date()){return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;}
@@ -161,14 +148,14 @@ if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').then(
 function readingOptions(u){const fixed=window.READING_CHOICES[u.text];if(fixed)return shuffle(fixed);const others=shuffle(units.filter(x=>x.kind===u.kind&&x.level<=u.level&&x.reading!==u.reading));const hints=[u.reading];for(const x of others){if(!hints.includes(x.reading))hints.push(x.reading);if(hints.length===3)break;}return shuffle(hints);}
 
 function setLessonPhase(phase){
- if(change(s=>{s.lessons[s.settings.level]||=L.blankLesson();s.lessons[s.settings.level].phase=Math.max(s.lessons[s.settings.level].phase,phase);})){lessonStep=phase;cancelRecording();renderLesson();}
+ if(change(s=>{s.lessons[s.settings.level]||=L.blankLesson();s.lessons[s.settings.level].phase=Math.max(s.lessons[s.settings.level].phase,phase);})){lessonStep=phase;stopAudio();renderLesson();}
 }
 function renderGuide(){
  const level=currentLevel(),info=window.READING_LESSONS[level.id],saved=lessonState();
  lessonStep=lessonStep===1?0:Math.min(lessonStep,saved.phase);
  const steps=[0,2,3,4],titles=['기본 3개 배우기','기본 문제','응용 2개','5개 숙달'];
- $('lesson-steps').replaceChildren();steps.forEach((phase,i)=>{const b=btn((i+1)+'. '+titles[i],()=>{cancelRecording();lessonStep=phase;renderGuide();});b.disabled=phase>saved.phase;if(phase===lessonStep)b.setAttribute('aria-current','step');$('lesson-steps').append(b);});
- document.querySelectorAll('[data-lesson-step]').forEach(p=>p.hidden=Number(p.dataset.lessonStep)!==lessonStep&&!(lessonStep===0&&p.dataset.lessonStep==='1'));
+ $('lesson-steps').replaceChildren();steps.forEach((phase,i)=>{const b=btn((i+1)+'. '+titles[i],()=>{stopAudio();lessonStep=phase;renderGuide();});b.disabled=phase>saved.phase;if(phase===lessonStep)b.setAttribute('aria-current','step');$('lesson-steps').append(b);});
+ document.querySelectorAll('[data-lesson-step]').forEach(p=>p.hidden=Number(p.dataset.lessonStep)!==lessonStep);
  $('lesson-location').textContent=`수업 ${steps.indexOf(lessonStep)+1} / 4 · ${titles[steps.indexOf(lessonStep)]}`;
  $('base-word-overview').replaceChildren();
  for(const u of stageUnits().filter(u=>u.role==='base'))$('base-word-overview').append(teachingCard(u));
@@ -182,12 +169,12 @@ function renderGuide(){
 function teachingCard(u){
  const row=el('article',undefined,'teaching-word');row.dataset.unit=u.id;
  const picture=el('div',u.picture,'teaching-picture');picture.setAttribute('role','img');picture.setAttribute('aria-label',u.meaning);
- const body=el('div');body.append(el('h3',u.text),el('p',u.reading,'reading-hint'),el('p','뜻: '+u.meaning),btn('🔊 듣기',()=>speak(u.text)),btn('천천히',()=>speak(u.text,.65)));
+ const body=el('div');body.append(el('h3',u.text),el('p',u.reading,'reading-hint'),el('p','뜻: '+u.meaning),btn('🔊 발음 듣기',()=>speak(u.text)),btn('천천히 듣기',()=>speak(u.text,.65)));
  row.append(picture,body);return row;
 }
 $('start-basic-check').onclick=()=>{
  if(!change(s=>{const lesson=s.lessons[s.settings.level]||L.blankLesson();lesson.seen=stageUnits().filter(u=>u.role==='base').map(u=>u.id);lesson.phase=Math.max(lesson.phase,2);s.lessons[s.settings.level]=lesson;}))return;
- lessonStep=2;cancelRecording();renderLesson();window.scrollTo({top:0});
+ lessonStep=2;stopAudio();renderLesson();window.scrollTo({top:0});
 };
 function renderGateCheck(role){
  const list=stageUnits().filter(u=>u.role===role),category=role==='base'?'basic':'application',saved=lessonState();
@@ -205,5 +192,5 @@ function renderGateCheck(role){
  }
  card.append(choices,feedback);host.append(card);
 }
-$('lesson-back').onclick=()=>{cancelRecording();lessonStep=lessonStep===2?0:Math.max(0,lessonStep-1);renderGuide();};
+$('lesson-back').onclick=()=>{stopAudio();lessonStep=lessonStep===2?0:Math.max(0,lessonStep-1);renderGuide();};
 
