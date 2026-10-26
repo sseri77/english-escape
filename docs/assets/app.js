@@ -166,7 +166,7 @@ function setLessonPhase(phase){
 function renderGuide(){
  const level=currentLevel(),info=window.READING_LESSONS[level.id],saved=lessonState();
  lessonStep=lessonStep===1?0:Math.min(lessonStep,saved.phase);
- const steps=[0,2,3,4],titles=['기본 3개 학습·읽기','기본 문제','응용 2개','5개 숙달'];
+ const steps=[0,2,3,4],titles=['기본 3개 배우기','기본 문제','응용 2개','5개 숙달'];
  $('lesson-steps').replaceChildren();steps.forEach((phase,i)=>{const b=btn((i+1)+'. '+titles[i],()=>{cancelRecording();lessonStep=phase;renderGuide();});b.disabled=phase>saved.phase;if(phase===lessonStep)b.setAttribute('aria-current','step');$('lesson-steps').append(b);});
  document.querySelectorAll('[data-lesson-step]').forEach(p=>p.hidden=Number(p.dataset.lessonStep)!==lessonStep&&!(lessonStep===0&&p.dataset.lessonStep==='1'));
  $('lesson-location').textContent=`수업 ${steps.indexOf(lessonStep)+1} / 4 · ${titles[steps.indexOf(lessonStep)]}`;
@@ -182,20 +182,13 @@ function renderGuide(){
 function teachingCard(u){
  const row=el('article',undefined,'teaching-word');row.dataset.unit=u.id;
  const picture=el('div',u.picture,'teaching-picture');picture.setAttribute('role','img');picture.setAttribute('aria-label',u.meaning);
- const body=el('div'),hint=el('div',undefined,'teaching-answer');hint.append(el('p',u.reading,'reading-hint'),el('p','뜻: '+u.meaning));
- const audio=el('div',undefined,'teaching-audio');audio.append(btn('🔊 듣기',()=>speak(u.text)),btn('천천히',()=>speak(u.text,.65)));
- const learned=lessonState().seen.includes(u.id),status=el('p',learned?'연습 완료 ✓':'','small muted');
- const start=btn(learned?'다시 읽어보기':'혼자 읽어보기',()=>{hint.hidden=true;audio.hidden=true;picture.style.visibility='hidden';picture.setAttribute('aria-hidden','true');start.hidden=true;reveal.hidden=false;status.textContent='영어를 보고 읽는 법과 뜻을 떠올려보세요.';});
- start.dataset.action='practice';
- const reveal=btn('정답 확인',()=>{hint.hidden=false;audio.hidden=false;picture.style.visibility='';picture.removeAttribute('aria-hidden');reveal.hidden=true;confirm.hidden=false;status.textContent='내가 읽은 소리와 뜻이 맞는지 확인하세요.';});reveal.hidden=true;reveal.dataset.action='reveal';
- const confirm=btn('이 단어 연습 완료',()=>{
-  if(!change(s=>{const lesson=s.lessons[u.level]||L.blankLesson();if(!lesson.seen.includes(u.id))lesson.seen.push(u.id);if(lesson.seen.length===3)lesson.phase=Math.max(lesson.phase,2);s.lessons[u.level]=lesson;}))return;
-  if(lessonState().seen.length===3){lessonStep=2;renderLesson();toast('세 단어 연습 완료! 기본 문제를 풀어보세요.');}
-  else renderLesson();
- },'primary');confirm.hidden=true;confirm.dataset.action='complete';
- const practice=el('div',undefined,'teaching-practice');practice.append(start,reveal,confirm);
- body.append(el('h3',u.text),hint,audio,practice,status);row.append(picture,body);return row;
+ const body=el('div');body.append(el('h3',u.text),el('p',u.reading,'reading-hint'),el('p','뜻: '+u.meaning),btn('🔊 듣기',()=>speak(u.text)),btn('천천히',()=>speak(u.text,.65)));
+ row.append(picture,body);return row;
 }
+$('start-basic-check').onclick=()=>{
+ if(!change(s=>{const lesson=s.lessons[s.settings.level]||L.blankLesson();lesson.seen=stageUnits().filter(u=>u.role==='base').map(u=>u.id);lesson.phase=Math.max(lesson.phase,2);s.lessons[s.settings.level]=lesson;}))return;
+ lessonStep=2;cancelRecording();renderLesson();window.scrollTo({top:0});
+};
 function renderGateCheck(role){
  const list=stageUnits().filter(u=>u.role===role),category=role==='base'?'basic':'application',saved=lessonState();
  const target=list.find(u=>!saved[category].includes(u.id)),host=$(role==='base'?'lesson-basic-check':'lesson-application-check');host.replaceChildren();
