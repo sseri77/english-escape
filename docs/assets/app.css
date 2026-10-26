@@ -14,7 +14,7 @@
 aside .lesson-controls{flex-direction:column;margin-top:20px;padding-top:18px}
 aside .lesson-controls button{width:100%;flex:none}
 .lesson-tools{background:var(--soft);border:1px solid var(--line);border-radius:18px;margin-top:28px;padding:20px;text-align:center}.lesson-tools #start-review{max-width:440px;margin:0 auto}.lesson-tools p{margin:12px auto 0;max-width:48ch}
-@media(max-width:740px){aside .lesson-controls{flex-direction:row;margin-top:14px;padding-top:14px}aside .lesson-controls button{flex:1;width:auto}.lesson-tools }
+@media(max-width:740px){aside .lesson-controls{flex-direction:row;margin-top:14px;padding-top:14px}aside .lesson-controls button{flex:1;width:auto}}
 
 #words-more{max-width:420px;display:block;margin:22px auto 0}#words-more[hidden]{display:none!important}
 
@@ -80,3 +80,22 @@ aside .lesson-controls button{width:100%;flex:none}
 .teaching-practice{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.teaching-practice button{margin:0}.teaching-audio{display:flex;gap:8px;flex-wrap:wrap}.teaching-word .teaching-practice~p:empty{display:none}
 
 .word-reading-guide{margin:16px 0 4px;padding:14px 16px;border-radius:12px;background:var(--soft);text-align:left;font-size:.88rem;line-height:1.7}.word-reading-guide strong{font-size:.92rem}.word-reading-guide p{margin:8px 0}.word-reading-guide .sound-breakdown{font-weight:650;overflow-wrap:anywhere;color:var(--accent)}.word-reading-guide .reading-attention{border-top:1px solid var(--line);padding-top:8px}
+
+/* Reading first, optional help second. All controls retain a 44px touch target. */
+.reveal-choices{display:block;margin:12px auto;min-height:44px;padding:8px 18px;font-size:.9rem}
+.quiz-help{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.quiz-help button{min-height:44px;padding:7px 12px;font-size:.8rem}
+.quiz-help p{flex-basis:100%;margin:0;text-align:center}
+.audio-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.audio-choice button{min-height:48px;font-size:.9rem;padding:8px}
+.phrase-practice{background:var(--soft);padding:14px 16px;border-radius:12px;text-align:left;margin:18px 0}
+.phrase-practice summary{cursor:pointer;font-weight:650}
+.reading-phrase{font-size:1.2rem;letter-spacing:.02em}
+@media(max-width:740px) and (min-height:620px){
+ #quiz-content .quiz-help{margin:5px 0;gap:6px}
+ #quiz-content .quiz-help button{font-size:.75rem;padding:5px 10px}
+ #quiz-content .choices{grid-auto-rows:minmax(48px,auto);gap:6px}
+ #quiz-content .choices button{min-height:48px;padding:8px 10px;font-size:.95rem}
+ #quiz-content .reveal-choices{min-height:44px;margin:8px auto}
+ #quiz-content .audio-choice button{font-size:.8rem}
+}

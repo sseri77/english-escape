@@ -26,8 +26,9 @@ function validate(input,ids){
   if(!input.lessons||typeof input.lessons!=='object'||Array.isArray(input.lessons))throw Error('수업 기록이 올바르지 않습니다.');
   for(const [key,value]of Object.entries(input.lessons)){
    if(!/^(?:[1-9]|[1-5][0-9]|60)$/.test(key))continue;
-   if(!value||!integer(value.phase,4))throw Error('수업 순서가 올바르지 않습니다.');
+   if(!value||!integer(value.phase,5))throw Error('수업 순서가 올바르지 않습니다.');
    const clean=blankLesson();clean.phase=value.phase;clean.complete=value.complete===true;
+   if(value.transfer!==undefined){if(!Array.isArray(value.transfer))throw Error('새 단어 확인 기록이 올바르지 않습니다.');clean.transfer=[...new Set(value.transfer.filter(id=>['T'+key.padStart(2,'0')+'-1','T'+key.padStart(2,'0')+'-2'].includes(id)))];}
    for(const category of ['seen','basic','application']){
     if(!Array.isArray(value[category]))throw Error('수업 풀이 기록이 올바르지 않습니다.');
     clean[category]=[...new Set(value[category].filter(id=>ids.has(id)&&id.startsWith('L'+key.padStart(2,'0')+'-')))];
@@ -46,16 +47,26 @@ function answer(progress,correct,now=Date.now()){
 }
 function reset(progress){return {...empty(),...progress,streak:0,due:0,interval:0};}
 function normalize(text){return text.normalize('NFKC').toLowerCase().replace(/[.!?,]/g,'').replace(/\s+/g,' ').trim();}
-function blankLesson(){return {phase:0,seen:[],basic:[],application:[],complete:false};}
+function blankLesson(){return {phase:0,seen:[],basic:[],application:[],transfer:[],complete:false};}
 function shuffle(list,rng=Math.random){const out=[...list];for(let i=out.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[out[i],out[j]]=[out[j],out[i]];}return out;}
 function mixedRound(targetIds,reviewIds,rng=Math.random){const reviews=shuffle([...new Set(reviewIds)],rng).slice(0,1+Math.floor(rng()*2));return shuffle([...targetIds,...reviews],rng);}
 function advanceIfMastered(state,level,targetIds,lastLevel=60){
  if(targetIds.length!==5||targetIds.some(id=>!state.items[id]||state.items[id].streak<MASTERY))return false;
- const lesson=state.lessons[level]||blankLesson();if(lesson.phase!==4)return false;
+ const lesson=state.lessons[level]||blankLesson();if(lesson.phase<4)return false;
+ if(!lesson.complete&&(!lesson.transfer||lesson.transfer.length!==2))return false;
  lesson.complete=true;state.lessons[level]=lesson;
  if(level<lastLevel){state.settings.level=level+1;state.lessons[level+1]||=blankLesson();}
  return true;
 }
-const api={KEY,MASTERY,defaults,empty,validate,answer,reset,normalize,blankLesson,shuffle,mixedRound,advanceIfMastered};
+function reviewAnswer(progress,correct,now=Date.now()){
+ const p=answer(progress,correct,now);
+ if(correct){const days=[1,3,7,14,30],step=Math.min(progress?.interval||0,4);p.due=now+days[step]*86400000;p.interval=Math.min(step+1,5);}
+ return p;
+}
+function dueItems(state,units,now=Date.now(),limit=5){
+ return units.filter(u=>state.lessons[u.level]?.complete&&state.items[u.id]?.total>0&&state.items[u.id].due<=now)
+ .sort((a,b)=>state.items[a.id].due-state.items[b.id].due||state.items[b.id].wrong-state.items[a.id].wrong).slice(0,limit).map(u=>u.id);
+}
+const api={KEY,MASTERY,defaults,empty,validate,answer,reset,normalize,blankLesson,shuffle,mixedRound,advanceIfMastered,reviewAnswer,dueItems};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.Learning=api;
 })(typeof window!=='undefined'?window:globalThis);
