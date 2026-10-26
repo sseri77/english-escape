@@ -170,12 +170,22 @@ function teachingCard(u){
 }
 $('start-basic-check').onclick=()=>{
  if(!change(s=>{const lesson=s.lessons[s.settings.level]||L.blankLesson();lesson.seen=stageUnits().filter(u=>u.role==='base').map(u=>u.id);lesson.phase=Math.max(lesson.phase,2);s.lessons[s.settings.level]=lesson;}))return;
- lessonStep=2;stopAudio();renderLesson();window.scrollTo({top:0});
+ const saved=lessonState();stopAudio();
+ if(saved.basic.length===3&&saved.application.length===2){setLessonPhase(4);startQuiz();}
+ else if(saved.basic.length===3)setLessonPhase(3);
+ else{lessonStep=2;renderLesson();}
+ window.scrollTo({top:0});
 };
+function continueLessonCheck(role){
+ const category=role==='base'?'basic':'application',total=role==='base'?3:2;
+ if(lessonState()[category].length<total){renderGateCheck(role);return;}
+ setLessonPhase(role==='base'?3:4);
+ if(role==='application')startQuiz();
+}
 function renderGateCheck(role){
  const list=stageUnits().filter(u=>u.role===role),category=role==='base'?'basic':'application',saved=lessonState();
  const target=list.find(u=>!saved[category].includes(u.id)),host=$(role==='base'?'lesson-basic-check':'lesson-application-check');host.replaceChildren();
- if(!target){host.append(el('p',role==='base'?'기본 세 단어를 모두 확인했어요.':'응용 두 문제를 모두 확인했어요.'),btn(role==='base'?'응용 두 문제로 →':'다섯 단어 숙달 훈련으로 →',()=>{setLessonPhase(role==='base'?3:4);if(role==='application')startQuiz();},'primary'));return;}
+ if(!target){host.append(el('p',role==='base'?'기본 세 단어를 모두 확인했어요.':'응용 두 문제를 모두 확인했어요.'),btn(role==='base'?'응용 두 문제로 →':'다섯 단어 숙달 훈련으로 →',()=>continueLessonCheck(role),'primary'));return;}
  const card=el('div',undefined,'lesson-check'),choices=el('div',undefined,'choices'),feedback=el('div');let answered=false;
  card.append(el('p',`${role==='base'?'기본':'응용'} 문제 ${saved[category].length+1} / ${list.length}`,'small muted'),el('h4',target.text),el('p','이 영어는 어떻게 읽을까요?'));
  for(const hint of readingOptions(target)){
@@ -183,7 +193,7 @@ function renderGateCheck(role){
    if(answered)return;answered=true;for(const button of choices.children)button.disabled=true;
    const correct=hint===target.reading;
    if(correct&&!change(s=>{const lesson=s.lessons[target.level]||L.blankLesson();if(!lesson[category].includes(target.id))lesson[category].push(target.id);s.lessons[target.level]=lesson;})){answered=false;for(const button of choices.children)button.disabled=false;return;}
-   feedback.className='check-feedback';feedback.append(el('strong',correct?'✓ 정답이에요!':'↻ 읽는 원리를 다시 확인해요.'),el('p',`${target.text} → ${target.reading} · 뜻: ${target.meaning}`),wordReadingGuide(target),btn('🔊 정답 듣기',()=>speak(target.text)),btn(correct?'계속하기 →':'다시 풀기',()=>renderGateCheck(role),'primary'));
+   feedback.className='check-feedback';feedback.append(el('strong',correct?'✓ 정답이에요!':'↻ 읽는 원리를 다시 확인해요.'),el('p',`${target.text} → ${target.reading} · 뜻: ${target.meaning}`),wordReadingGuide(target),btn('🔊 정답 듣기',()=>speak(target.text)),btn(correct?'계속하기 →':'다시 풀기',()=>correct?continueLessonCheck(role):renderGateCheck(role),'primary'));
   });b.dataset.answer=hint===target.reading?'correct':'wrong';choices.append(b);
  }
  card.append(choices,feedback);host.append(card);
